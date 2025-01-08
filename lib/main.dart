@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'package:mis_lab2/firebase/firebase_api.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseApi().initNotifications();
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission();
+  print('User granted permission: \${settings.authorizationStatus}');
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Received message: \${message.notification?.title}');
+  });
   runApp(const MyApp());
 }
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../services/api_services.dart';
+import '../services/api_services.dart';import 'favorite_jokes_screen.dart';
+
 import 'jokes_list_screen.dart';
 import 'random_joke_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,19 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => RandomJokeScreen(joke: randomJoke),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoriteJokesScreen(
+                    favoriteJokes: [],
+                  ),
                 ),
               );
             },
