@@ -4,8 +4,9 @@ import '../services/api_services.dart';
 
 class JokesListScreen extends StatefulWidget {
   final String type;
+  final Function(Joke) onFavoriteToggle;
 
-  const JokesListScreen({super.key, required this.type});
+  JokesListScreen({required this.type, required this.onFavoriteToggle});
 
   @override
   _JokesListScreenState createState() => _JokesListScreenState();
@@ -51,6 +52,7 @@ class _JokesListScreenState extends State<JokesListScreen> {
                       setState(() {
                         jokes[index].isFavorite = !jokes[index].isFavorite;
                       });
+                      widget.onFavoriteToggle(jokes[index]);
                     },
                   ),
                 );

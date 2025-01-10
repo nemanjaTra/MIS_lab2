@@ -1,19 +1,59 @@
 import 'package:flutter/material.dart';
-import '../services/api_services.dart';import 'favorite_jokes_screen.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../models/joke_model.dart';
+import '../services/api_services.dart';
+import 'favorite_jokes_screen.dart';
 import 'jokes_list_screen.dart';
 import 'random_joke_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Joke> favoriteJokes = [];
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+    _scheduleDailyNotification();
+  }
+
+  void _initializeNotifications() async {
+    var androidInitializationSettings = AndroidInitializationSettings('app_icon');
+    var initializationSettings = InitializationSettings(android: androidInitializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _scheduleDailyNotification() async {
+    var androidDetails = AndroidNotificationDetails(
+      'daily_id',
+      'Daily Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    var platformDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.periodicallyShow(
+      0,
+      'Daily Joke Reminder',
+      'Check the joke of the day!',
+      RepeatInterval.daily,
+      platformDetails,
+      androidScheduleMode: AndroidScheduleMode.exact,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            'Joke Categories \n 213239'),
+        title: Text('Joke Categories \n 213239'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -35,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FavoriteJokesScreen(
-                    favoriteJokes: [],
+                    favoriteJokes: favoriteJokes, // Pass the actual favoriteJokes list
                   ),
                 ),
               );
@@ -68,7 +108,15 @@ class HomeScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              JokesListScreen(type: types[index]),
+                              JokesListScreen(type: types[index], onFavoriteToggle: (Joke joke) {
+                                setState(() {
+                                  if (joke.isFavorite) {
+                                    favoriteJokes.add(joke);
+                                  } else {
+                                    favoriteJokes.removeWhere((fave) => fave.setup == joke.setup && fave.punchline == joke.punchline);
+                                  }
+                                });
+                              }),
                         ),
                       );
                     },
@@ -92,4 +140,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
